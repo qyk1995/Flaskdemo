@@ -13,11 +13,11 @@
 #转移的热点名称和目的地钱包地址以及转移的结果
 
 
-from app import Transfer
+from apps import Transfer
 import subprocess
 import wexpect, base64, uuid, json, os, logging
 from database import db_session
-from app import NewWallet
+from apps import NewWallet
 
 
 LOG_FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
@@ -92,6 +92,7 @@ def transfer(password1,wallets,srckey_paths,hotspots,dest_file):
         if not os.path.exists(wallets_path):
             os.mkdir(wallets_path)
     # 填的话就应这个源地址为主，不填的话以本次新建钱包为源地址
+
     if dest_file:
         fread = dest_file.read()
         fwe = str(fread, 'utf-8')

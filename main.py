@@ -5,9 +5,9 @@ from flask import Flask, request
 import json
 import logging
 
-from app import NewWallet, Transfer, BalancePay
+from apps import NewWallet, Transfer, BalancePay
 from database import db_session
-from flask_cors import CORS
+from flask_cors import cross_origin,CORS
 from flask import render_template
 
 #
@@ -15,8 +15,8 @@ app = Flask(__name__,
             static_folder="./static",
             static_url_path="",
             template_folder="./static")
-
 CORS(app,resource='/*')
+
 @app.route('/')
 def index():
     return render_template("index.html")
@@ -39,17 +39,18 @@ def verfite(key,dicts):
 def create_basic():
 
     # 加个判断是否存在数据，不存在则直接返回错误
-    print("213123")
+
     if verfite("password",request.get_json()):
         return {"data":"","msg":"缺少参数:{}".format("password"),"status":1}
     if verfite("count",request.get_json()):
         return {"data":"","msg":"缺少参数:{}".format("count"),"status":1}
+
     password1 = request.get_json()["password"]
     count = request.get_json()["count"]
     paths = request.get_json()["paths"]
     print(paths,password1,count)
-    #create_result = create_main(password1, int(count), paths)
-    return json.dumps({"data":{},"msg":"获取成功","status":0})
+    create_result = create_main(password1, int(count), paths)
+    return json.dumps(create_result)
 
 
 # 获取所有创建的新钱包以及是否使用状态
@@ -59,7 +60,7 @@ def get_basic():
     results = []
     for n in querys:
         results.append({"id": n.id, "address": n.address})
-    return json.dumps({"data":results,"msg":"获取成功","status":0})
+    return json.dumps({"data":results,"msg":"获取钱包地址成功","status":0})
 
 
 # 显示源钱包账户下所有热点列表
@@ -67,11 +68,9 @@ from transfer import get_hotspots
 @app.route('/api/transfer', methods=["GET"])
 def get_hotspot():
     wallet = request.args.get("wallet")
-    print(wallet)
-    time.sleep(4)
-   #results = get_hotspots(wallet)
-    return json.dumps({"data":{"address":wallet,"hotspots":["dads","dadsasd"]},"msg":"获取成功","status":0})
-
+    logging.info(wallet)
+    results = get_hotspots(wallet)
+    return json.dumps(results)
 
 from transfer import transfer
 
@@ -84,16 +83,16 @@ def tranfers():
     wallets = request.form.get("wallets")
     srckey_paths = request.form.get("srckey_paths")
     logging.info("transfer")
+    logging.info(request.form)
     if request.form.get("file"):
         dest_file = ""
-
     else:
         dest_file = request.files['file']
 
     logging.info(dest_file)
     logging.info(password1)
-    logging.info(hotspots)
     logging.info(wallets)
+    logging.info(hotspots)
     results = transfer(password1, wallets, srckey_paths, hotspots,dest_file)
     return json.dumps(results)
 
@@ -125,7 +124,7 @@ def balance_pay():
     addressPwd = request.get_json()["password"]
     paths = request.get_json()["srckey_paths"] #源钱包的key文件路径
     results = banlance_pay(wallet, addressPwd, paths)
-    return results
+    return json.dumps(results)
 
 
 

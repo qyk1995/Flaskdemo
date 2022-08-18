@@ -11,7 +11,7 @@ from posixpath import split
 import time, sys
 from unittest import result
 import configparser
-from app import NewWallet
+from apps import NewWallet
 from multiprocessing import Pool, cpu_count
 import os
 import time
@@ -31,7 +31,6 @@ logging.basicConfig(filename='logFile.log', level=(logging.DEBUG), format=LOG_FO
 
 def creates(password1, paths):
     logging.info("开始创建新钱包")
-    print('1111111111222222')
     if not paths:
         paths = './dataKeys/'
         if not os.path.exists(paths):
@@ -42,13 +41,13 @@ def creates(password1, paths):
         resultJson = cmdexec(password1,paths,fileNameId)
     except Exception as e:
         logging.error("创建错误原因:{}".format(str(e)))
-        return False
+        return True
     else:
         logging.info("创建成功")
         newallet = NewWallet(address=resultJson['address'],status=0)
         db_session.add(newallet)
         db_session.commit()
-        return True
+        return False
 
 
 def cmdexec(password1,paths,fileNameId):
@@ -74,13 +73,13 @@ def cmdexec(password1,paths,fileNameId):
     child.logfile = sys.stdout
     child.sendline('exit')
     child.wait()
-    return resultJson
+    return  resultJson
 
 
 
 def create_main(password1, count, paths):
     logging.info('当前母进程: {}'.format(os.getpid()))
-    p = Pool(cpu_count())
+    p = Pool(6)
     fails = []
     success = []
     for i in range(count):

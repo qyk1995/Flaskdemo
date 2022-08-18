@@ -14,7 +14,7 @@ import json
 import wexpect, base64, uuid, json, os
 import subprocess
 import logging
-from app import NewWallet,BalancePay
+from apps import NewWallet,BalancePay
 from database import db_session
 
 LOG_FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
